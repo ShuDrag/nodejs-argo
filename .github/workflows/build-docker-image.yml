@@ -28,7 +28,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Convert owner to lowercase
+        id: lowercase_owner
+        run: |
+          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "::set-output name=owner::$OWNER_LOWER"
+          
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -39,7 +44,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ lower(github.repository_owner) }}/dcdeploymo2020:latest
+            ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/dcdeploymo2020:latest
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.description=HTTP Server
